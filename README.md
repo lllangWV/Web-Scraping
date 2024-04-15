@@ -3,8 +3,17 @@
 This repository is for learning how do webscraping in multiple ways.
 
 
+# Setting up Conda environment
+Navigate to this directory. Then do the following
+
+```bash
+conda env create -f env.yml
+```
+
+# Setting up Selenium
 For help setting up the selenium driver for google chrome. Use this video https://www.youtube.com/watch?v=NB8OceGZGjA
 
+## Instructions to update chrome
 It is easier if you make sure chrome is the most up-to-date version
 
 1. On your computer, open Chrome.
@@ -13,7 +22,7 @@ It is easier if you make sure chrome is the most up-to-date version
 4. Click Update Google Chrome. Important: If you can't find this button, you're on the latest version.
 5. Click Relaunch.
 
-
+## Instructions to download the selenium driver
 After updating, we need to download the correct chrome driver from this website.
 
 1. Go to `https://sites.google.com/chromium.org/driver/`

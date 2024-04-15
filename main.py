@@ -1,8 +1,7 @@
 from selenium import webdriver
-# from selenium.webdriver.common.keys import Keys
+
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.service import Service
 import time
@@ -18,7 +17,6 @@ driver.get("https://www.cryst.ehu.es/cryst/commonsuper.html")
 
 
 # Fill in the text inputs
-
 spg_1 = 213
 z_1 = 2
 spg_2 = 214
@@ -139,6 +137,3 @@ for entry in all_rows_data[:1]:
 # time.sleep(10)
 
 driver.quit()
-
-# link = driver.find_element_by_link_text("Python Programming")
-# link.click()
