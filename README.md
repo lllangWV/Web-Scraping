@@ -31,5 +31,12 @@ After updating, we need to download the correct chrome driver from this website.
 4. Find **`chromedriver`** row for your system. Then copy the link and paste into the browser. This will download a `.zip` file
 5. Place this `.zip` file in the directory you are working from and Extract it there.
 6. Copy the `chromedriver.exe` to the root directory you are working from.
-7. You can then deleter the original folder and the `.zip`
+7. You can then delete the original folder and the `.zip`
 
+Your root directory should now contain:
+- `example_data`
+- `.gitignore`
+- `chromedriver.exe`
+- `env.yml`
+- `main.py`
+- `README.md`
