@@ -1,0 +1,155 @@
+<html><head>
+    <meta name="author" content="Bilbao Crystallographic Server">
+    <meta name="description" content="The program calculates the common supergroups of two space groups given the space group number, number of formula units and maximum k-index">
+    <meta name="keywords" content="supergroups, space groups, k-index"> 
+    <title>Common Supergroups of two Space Groups</title>
+    <link href="/html/css/bcs_index.css" rel="stylesheet" title="BCS Style" type="text/css">
+  </head>
+  
+  <body data-new-gr-c-s-check-loaded="14.1167.0" data-gr-ext-installed="">
+  <table class="signature">
+    <tbody><tr>
+      <td>
+        <small>
+          <a class="blue2" href="/">Bilbao Crystallographic Server</a>
+          <img src="/html/gif/a.gif" alt="arrow">
+          Common supergroups of two space groups
+        </small>
+      </td>
+      <td>
+        <small><a class="blue2" href="">Help</a></small>
+      </td>
+    </tr>
+  </tbody></table>
+  <center><h2 class="blue2">Common Supergroups of two Space Groups</h2></center>
+  <br>
+  
+  <table>
+    <tbody><tr valign="top">
+      <td class="grey" width="35%">
+        <table class="darkblue2">
+          <tbody><tr>
+            <td>
+              <b>Common Supergroups<b>
+            </b></b></td>
+          </tr>
+        </tbody></table>
+        <table>
+          <tbody><tr>
+            <td>
+  <b>COMMONSUPER</b> calculates the common supergroups of two space groups given:
+    <p>
+    </p><ul>
+    <li> Space groups numbers
+    </li><li> Number of formula units (per conventional unit cell)
+    </li><li> A maximum k-index which defines the maximum cell multiplication. 
+    </li></ul>
+    <p>
+    <em>Only the <a class="blue2" href="/cgi-bin/cryst/programs/nph-def-choice">default choice</a>
+        for the conventional setting of the space groups is used.
+    </em> 
+  
+            </p></td>
+          </tr>
+        </tbody></table>
+      </td>
+      <td width="65%">
+        <form method="post" action="/cgi-bin/cryst/programs/paths/nph-commonsuper" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="client" value="commonsuper">  
+        <table class="grey">
+          <tbody><tr>
+            <td width="50%">
+              <small>Please, enter the sequential number of the space group 1 as given 
+                     in <em>International Tables for Crystallography</em>, Vol. A
+                     or <a href="/cgi-bin/cryst/programs/nph-table?from=commonsuper&amp;look=super"> choose </a> it:
+              </small>
+            </td>
+            <td align="right">
+              <input type="text" name="G1" size="5" maxlength="3">
+            </td>
+            <td align="right">
+              <small>
+              Z<sub>1</sub> (conventional) <input type="text" name="ZG1" size="3" maxlength="3">
+              </small>
+            </td>  
+          </tr>
+  
+          <tr>
+            <td width="60%">
+              <small>Please, enter the sequential number of the space group 2 as given 
+                     in <em>International Tables for Crystallography</em>, Vol. A
+                     or <a href="/cgi-bin/cryst/programs/nph-table?from=commonsuper&amp;look=sub"> choose </a> it:
+              </small>
+            </td>
+            <td align="right">
+              <input type="text" name="G2" size="5" maxlength="3">
+            </td>
+            <td align="right">
+              <small>
+              Z<sub>2</sub> (conventional) <input type="text" name="ZG2" size="3" maxlength="3">
+              </small>
+            </td> 
+          </tr>
+          <tr>
+            <td with="80%">Maximum k-index 
+            </td>
+            <td align="right" colspan="2">   
+               <select name="maxik" size="0">
+                 <option value="1">1
+                 </option><option value="2">2
+                 </option><option value="3">3
+                 </option><option value="4">4
+                 </option><option value="8">8
+                 </option><option value="9">9
+                 </option><option value="12">12
+                 </option><option value="16">16
+               </option></select>
+            </td>
+          </tr>
+          <tr>  
+            <td colspan="3">
+              <small>
+                <b>NOTE</b>: the program uses the 
+                <a class="blue2" href="/cgi-bin/cryst/programs/nph-def-choice">default choice</a>
+                for the group setting.
+              </small>
+            </td>
+          </tr>
+        </tbody></table>
+        <br>
+        <center>
+        <input type="submit" name="submit" value="Show supergroups">
+        </center>
+        </form>
+      </td>
+    </tr>
+  </tbody></table>
+  
+  <center>[ <a class="blue2" href="/">Bilbao Crystallographic Server Main Menu</a> ]</center>
+  <br>
+  
+  <table class="signature">
+    <tbody><tr>
+      <td align="left">
+         <table>
+          <tbody><tr>
+           <td><small><a class="blue2" href="http://www.cryst.ehu.es">Bilbao Crystallographic Server</a><br>http://www.cryst.ehu.es</small></td>
+           <td>
+             <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"></a>
+           </td>
+          </tr>
+         </tbody></table>
+      </td>
+      <td align="right" rowspan="2"> 
+        <small>
+          For comments, please mail to<br>
+          <a class="blue2" href="mailto:administrador.bcs@ehu.es">administrador.bcs@ehu.es</a>
+        </small>
+      </td>
+    </tr>
+  </tbody></table>
+  
+  
+      
+    
+  </body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
