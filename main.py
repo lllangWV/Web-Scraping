@@ -25,9 +25,12 @@ def get_supergroup_table(driver, verbose=VERBOSE):
         The keys in the dictionary correspond to the column names, and the values
         represent the data in each cell of the row.
     """
-
-    table = driver.find_element(By.CSS_SELECTOR, 'table[border="0"][cellpadding="3"]')
-
+    try:
+        table = driver.find_element(By.CSS_SELECTOR, 'table[border="0"][cellpadding="3"]')
+    except:
+        if verbose:
+            print("Table not found")
+        return []
     # Initialize a list to store all rows' data
     all_rows_data = []
 
@@ -99,78 +102,77 @@ def get_supergroup_info(webpage,driver, verbose=VERBOSE):
 
     # Load the webpage (assuming local HTML or reachable URL)
     driver.get(webpage)
-
-    # From the located outer table, find the nested table with border=""
+    
     nested_table = driver.find_element(By.CSS_SELECTOR, 'table[border=""]').find_element(By.XPATH, "tbody")
+  
 
-    # Initialize an empty list to store the results
     results = []
-
-    # Iterate through each row in the nested table, skipping the header row
-    for i_row, row in enumerate(nested_table.find_elements(By.XPATH, "tr")[1:]): # This find the rows directly under table/tbody
-        if verbose:
-            print("Procesing row",i_row)
-        # Initialize variables to store the data for each row
-        supergroup_number = None
-        transformation_matrix = np.zeros(shape=(3,3))
-        initial_vector = np.zeros(shape=(3))
-        coset_representatives = None
-        wyckoff_splitting_url = None
-        wyckoff_information = None
-
- 
-        # Iterate through each column in the row
-        # for i_col, column in enumerate(row.find_elements(By.TAG_NAME, "td")):
-        for i_col, column in enumerate(row.find_elements(By.XPATH, "td")):
+    if nested_table:
+        # Iterate through each row in the nested table, skipping the header row
+        for i_row, row in enumerate(nested_table.find_elements(By.XPATH, "tr")[1:]): # This find the rows directly under table/tbody
             if verbose:
-                print("Processing column",i_col)
-            # Extract the supergroup number from the first column
-            if i_col == 0:
-                supergroup_number = column.text.strip()
+                print("Procesing row",i_row)
+            # Initialize variables to store the data for each row
+            supergroup_number = None
+            transformation_matrix = np.zeros(shape=(3,3))
+            initial_vector = np.zeros(shape=(3))
+            coset_representatives = None
+            wyckoff_splitting_url = None
+            wyckoff_information = None
 
-            # Extract the transformation matrix and initial vector from the second column
-            elif i_col == 1:
-                raw_transformation_matrix_rows = column.text.strip().split("\n")
-                for i_transform_row, transformation_row in enumerate(raw_transformation_matrix_rows):
-                    raw_numbers = transformation_row.replace("[","").replace("]","").split()
-                    tmp_list = []
-                    for raw_number in raw_numbers:
-                        # handles cases where the string is a fraction
-                        if "/" in raw_number:
-                            numerator, denominator = map(int, raw_number.split('/'))
-                            result_number = numerator / denominator
-                        else:
-                            result_number=raw_number
-                        tmp_list.append(float(result_number))
+    
+            # Iterate through each column in the row
+            # for i_col, column in enumerate(row.find_elements(By.TAG_NAME, "td")):
+            for i_col, column in enumerate(row.find_elements(By.XPATH, "td")):
+                if verbose:
+                    print("Processing column",i_col)
+                # Extract the supergroup number from the first column
+                if i_col == 0:
+                    supergroup_number = column.text.strip()
 
-                    raw_numbers = tmp_list
-                    transformation_matrix[i_transform_row,:] = raw_numbers[:3]
-                    initial_vector[i_transform_row] = raw_numbers[3]
+                # Extract the transformation matrix and initial vector from the second column
+                elif i_col == 1:
+                    raw_transformation_matrix_rows = column.text.strip().split("\n")
+                    for i_transform_row, transformation_row in enumerate(raw_transformation_matrix_rows):
+                        raw_numbers = transformation_row.replace("[","").replace("]","").split()
+                        tmp_list = []
+                        for raw_number in raw_numbers:
+                            # handles cases where the string is a fraction
+                            if "/" in raw_number:
+                                numerator, denominator = map(int, raw_number.split('/'))
+                                result_number = numerator / denominator
+                            else:
+                                result_number=raw_number
+                            tmp_list.append(float(result_number))
 
-            # Extract the coset representatives from the third column
-            elif i_col == 2:
-                coset_representatives = column.text.strip().split('\n')
+                        raw_numbers = tmp_list
+                        transformation_matrix[i_transform_row,:] = raw_numbers[:3]
+                        initial_vector[i_transform_row] = raw_numbers[3]
 
-            # Extract the URL for the wyckoff splitting information from the fourth column
-            elif i_col == 3:
+                # Extract the coset representatives from the third column
+                elif i_col == 2:
+                    coset_representatives = column.text.strip().split('\n')
 
-                wyckoff_splitting_url = column.find_elements(By.TAG_NAME, "a")[0].get_attribute('href')
+                # Extract the URL for the wyckoff splitting information from the fourth column
+                elif i_col == 3:
 
-                # Retrieve the wyckoff splitting information using the provided function
-                wyckoff_information = get_wyckoff_splitting_info(webpage=wyckoff_splitting_url,driver=driver)
+                    wyckoff_splitting_url = column.find_elements(By.TAG_NAME, "a")[0].get_attribute('href')
+
+                    # Retrieve the wyckoff splitting information using the provided function
+                    wyckoff_information = get_wyckoff_splitting_info(webpage=wyckoff_splitting_url,driver=driver)
 
 
-        # Create a dictionary to store the data for the current row
-        row_dict = {
-            "Supergroup number": supergroup_number,
-            "Transformation matrix": transformation_matrix,
-            "Initial vector": initial_vector,
-            "Coset representatives": coset_representatives,
-            "Wyckoff splitting info": wyckoff_information
-        }
+            # Create a dictionary to store the data for the current row
+            row_dict = {
+                "Supergroup number": supergroup_number,
+                "Transformation matrix": transformation_matrix,
+                "Initial vector": initial_vector,
+                "Coset representatives": coset_representatives,
+                "Wyckoff splitting info": wyckoff_information
+            }
 
-        # Append the dictionary to the results list
-        results.append(row_dict)
+            # Append the dictionary to the results list
+            results.append(row_dict)
 
     return results
 
@@ -277,13 +279,9 @@ def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, v
     # Submit the form
     driver.find_element(By.NAME, 'submit').click()
 
-    try:
-        # Get the table data
-        all_rows_data = get_supergroup_table(driver=driver, verbose=verbose)
-    except Exception as e:
-        print("Error:",e)
-        # If the table is not found, return an empty list
-        all_rows_data = []
+
+    all_rows_data = get_supergroup_table(driver=driver, verbose=verbose)
+
 
     driver.quit()
     return all_rows_data
