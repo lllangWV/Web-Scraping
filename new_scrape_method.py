@@ -266,29 +266,33 @@ def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, v
 
     # Submit the form
     driver.find_element(By.NAME, 'submit').click()
+    try:
+        all_rows_data = get_supergroup_table(driver=driver)
 
-    all_rows_data = get_supergroup_table(driver=driver)
-
-    driver.quit()
+        driver.quit()
 
 
-    for i,entry in enumerate(all_rows_data[:]):
-        if verbose:
-            print("Processing common supergroups row",i)
-            print("-"*200)
+        for i,entry in enumerate(all_rows_data[:]):
+            if verbose:
+                print("Processing common supergroups row",i)
+                print("-"*200)
 
-        if entry['G > H1']:
-            webpage=entry['G > H1']
-            entry_name='G > H1 Supergroup Info'  # Name for the entry in the dictionary
-            supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
-            entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
+            if entry['G > H1']:
+                webpage=entry['G > H1']
+                entry_name='G > H1 Supergroup Info'  # Name for the entry in the dictionary
+                supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
+                entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
 
-        if entry['G > H2']:
-            webpage=entry['G > H2']
-            entry_name='G > H2 Supergroup Info'  # Name for the entry in the dictionary
+            if entry['G > H2']:
+                webpage=entry['G > H2']
+                entry_name='G > H2 Supergroup Info'  # Name for the entry in the dictionary
 
-            supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
-            entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
+                supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
+                entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
+    except:
+        all_rows_data = []
+        driver.quit()
+        # print("No common supergroups found")
     return all_rows_data
 
 
@@ -307,10 +311,10 @@ def main():
     """
     # Fill in the text inputs
     spg_1 = 213
-    z_1 = 2
+    z_1 = 1
     spg_2 = 214
-    z_2 = 2
-    k_index = str(16)
+    z_2 = 1
+    k_index = 1
     start_time = time.time()
 
     common_supergroups_info = get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, verbose=VERBOSE)

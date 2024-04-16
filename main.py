@@ -277,7 +277,12 @@ def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, v
     # Submit the form
     driver.find_element(By.NAME, 'submit').click()
 
-    all_rows_data = get_supergroup_table(driver=driver)
+    try:
+        # Get the table data
+        all_rows_data = get_supergroup_table(driver=driver, verbose=verbose)
+    except:
+        # If the table is not found, return an empty list
+        all_rows_data = []
 
     driver.quit()
     return all_rows_data
@@ -298,10 +303,10 @@ def main():
     """
     # Fill in the text inputs
     spg_1 = 213
-    z_1 = 2
+    z_1 = 1
     spg_2 = 214
-    z_2 = 2
-    k_index = str(16)
+    z_2 = 1
+    k_index = 1
     start_time = time.time()
 
     common_supergroups_info = get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, verbose=VERBOSE)
