@@ -280,7 +280,8 @@ def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, v
     try:
         # Get the table data
         all_rows_data = get_supergroup_table(driver=driver, verbose=verbose)
-    except:
+    except Exception as e:
+        print("Error:",e)
         # If the table is not found, return an empty list
         all_rows_data = []
 

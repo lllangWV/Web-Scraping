@@ -289,7 +289,8 @@ def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, v
 
                 supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
                 entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
-    except:
+    except Exception as e:
+        print("Error:",e)
         all_rows_data = []
         driver.quit()
         # print("No common supergroups found")
