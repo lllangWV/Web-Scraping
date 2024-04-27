@@ -223,22 +223,87 @@ def get_wyckoff_splitting_info(webpage,driver, verbose=VERBOSE):
             elif i_col == 2:
                 wyckoff_subgroup = column.text.strip().split()
 
+            elif i_col == 3:
+                # Submit form
+                wyckoff_position_splitting_info = get_wyckoff_position_splitting_info(element=column,driver=driver)
+
         # Create a dictionary to store the Wyckoff splitting information for the current row
         row_dict = {
             "Wyckoff number": wyckoff_number,
             "Wyckoff Group": wyckoff_group,
             "Wyckoff Subgroup": wyckoff_subgroup,
+            'Wyckoff Position Splitting Info':wyckoff_position_splitting_info
         }
 
         # Append the dictionary to the results list
         results.append(row_dict)
 
-    # Go back to the previous page to continure the loop
-    driver.back()
+    
 
     # Return the list of Wyckoff splitting information
     return results
    
+
+def get_wyckoff_position_splitting_info(element, driver, verbose=VERBOSE):
+    """
+    Retrieves the Wyckoff splitting information from a web page.
+
+    Args:
+        element: The element containing the web page to scrape.
+        driver: The web driver used to interact with the web page.
+        verbose: A boolean indicating whether to print verbose output.
+
+    Returns:
+        A list of dictionaries, where each dictionary represents a row of Wyckoff splitting information.
+        Each dictionary contains the following keys:
+            - 'group_basis': The group basis.
+            - 'subgroup_basis': The subgroup basis.
+            - 'representative': The representative.
+            - 'subgroup_name': The subgroup name.
+            - 'operation_number': The operation number.
+    """
+    element.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
+
+    nested_table = driver.find_element(By.CSS_SELECTOR, 'table[border=""]').find_element(By.XPATH, "tbody")
+
+    results = []
+    rows = nested_table.find_elements(By.XPATH, 'tr')[2:]  # skip first two rows, they are headers
+    # Iterate through each row in the nested table
+    for i_row, row in enumerate(rows):
+        columns = row.find_elements(By.XPATH, 'td')
+        if len(columns) == 5:
+            subgroup_name = columns[3].text.strip()
+
+        for i_col, column in enumerate(columns):
+            if i_col == 0:
+                operation_number = column.text
+            if i_col == 1:
+                group_basis = column.text
+            if i_col == 2:
+                subgroup_basis = column.text
+            if i_col == 3 and len(columns) == 4:
+                representative = column.text
+            if i_col == 4 and len(columns) == 5:
+                representative = column.text
+
+        row_dict = {
+            "group_basis": group_basis,
+            "subgroup_basis": subgroup_basis,
+            "representative": representative,
+            'subgroup_name': subgroup_name,
+            'operation_number': operation_number
+        }
+
+        # Append the dictionary to the results list
+        results.append(row_dict)
+
+    # Return the list of Wyckoff splitting information
+    # Go back to the previous page to continue the loop
+    driver.back()
+    return results
+
+
+
 def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, verbose=VERBOSE):
     """
     Retrieves the common supergroups of two spacegroups using web scraping.
@@ -302,10 +367,10 @@ def main():
     """
     # Fill in the text inputs
     spg_1 = 213
-    z_1 = 1
+    z_1 = 2
     spg_2 = 214
-    z_2 = 1
-    k_index = 1
+    z_2 = 2
+    k_index = 2
     start_time = time.time()
 
     common_supergroups_info = get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, verbose=VERBOSE)

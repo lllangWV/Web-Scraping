@@ -277,7 +277,7 @@ def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, v
     driver.quit()
 
 
-    for i,entry in enumerate(all_rows_data[:]):
+    for i,entry in enumerate(all_rows_data[:1]):
         if verbose:
             print("Processing common supergroups row",i)
             print("-"*200)
@@ -288,12 +288,12 @@ def get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, v
             supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
             entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
 
-        if entry['G > H2']:
-            webpage=entry['G > H2']
-            entry_name='G > H2 Supergroup Info'  # Name for the entry in the dictionary
+        # if entry['G > H2']:
+        #     webpage=entry['G > H2']
+        #     entry_name='G > H2 Supergroup Info'  # Name for the entry in the dictionary
 
-            supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
-            entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
+        #     supergroup_info=get_supergroup_info(webpage=webpage)  # Get the supergroup info
+        #     entry[entry_name]=supergroup_info  # Add the supergroup info to the dictionary entry
    
     return all_rows_data
 
@@ -313,10 +313,10 @@ def main():
     """
     # Fill in the text inputs
     spg_1 = 213
-    z_1 = 1
+    z_1 = 2
     spg_2 = 214
-    z_2 = 1
-    k_index = 1
+    z_2 = 2
+    k_index = 2
     start_time = time.time()
 
     common_supergroups_info = get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, verbose=VERBOSE)
