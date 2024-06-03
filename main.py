@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import StaleElementReferenceException
 
 VERBOSE=False
 
@@ -103,78 +104,124 @@ def get_supergroup_info(webpage,driver, verbose=VERBOSE):
     # Load the webpage (assuming local HTML or reachable URL)
     driver.get(webpage)
     
-    nested_table = driver.find_element(By.CSS_SELECTOR, 'table[border=""]').find_element(By.XPATH, "tbody")
+    nested_table = get_nested_table(driver)
   
-
     results = []
     if nested_table:
+
+        rows=nested_table.find_elements(By.XPATH, "tr")[1:]
         # Iterate through each row in the nested table, skipping the header row
-        for i_row, row in enumerate(nested_table.find_elements(By.XPATH, "tr")[1:]): # This find the rows directly under table/tbody
-            if verbose:
-                print("Procesing row",i_row)
-            # Initialize variables to store the data for each row
-            supergroup_number = None
-            transformation_matrix = np.zeros(shape=(3,3))
-            initial_vector = np.zeros(shape=(3))
-            coset_representatives = None
-            wyckoff_splitting_url = None
-            wyckoff_information = None
-
-    
-            # Iterate through each column in the row
-            # for i_col, column in enumerate(row.find_elements(By.TAG_NAME, "td")):
-            for i_col, column in enumerate(row.find_elements(By.XPATH, "td")):
+        for i_row, row in enumerate(rows): # This find the rows directly under table/tbody
+            
+            try:
                 if verbose:
-                    print("Processing column",i_col)
-                # Extract the supergroup number from the first column
-                if i_col == 0:
-                    supergroup_number = column.text.strip()
+                    print("Procesing row",i_row)
+                    print(row.text)
+                    print(type(row))
+                row_dict = process_supergroup_row(row,driver, verbose)
+            except StaleElementReferenceException:
+                # Handle the case where the row has gone stale, refind the table and rows
+                driver.get(webpage)
+                nested_table = get_nested_table(driver)
+                rows = nested_table.find_elements(By.XPATH, "tr")[1:]
+                row = rows[i_row]  # Re-find the specific row that went stale
+                row_dict = process_supergroup_row(row,driver, verbose)
 
-                # Extract the transformation matrix and initial vector from the second column
-                elif i_col == 1:
-                    raw_transformation_matrix_rows = column.text.strip().split("\n")
-                    for i_transform_row, transformation_row in enumerate(raw_transformation_matrix_rows):
-                        raw_numbers = transformation_row.replace("[","").replace("]","").split()
-                        tmp_list = []
-                        for raw_number in raw_numbers:
-                            # handles cases where the string is a fraction
-                            if "/" in raw_number:
-                                numerator, denominator = map(int, raw_number.split('/'))
-                                result_number = numerator / denominator
-                            else:
-                                result_number=raw_number
-                            tmp_list.append(float(result_number))
-
-                        raw_numbers = tmp_list
-                        transformation_matrix[i_transform_row,:] = raw_numbers[:3]
-                        initial_vector[i_transform_row] = raw_numbers[3]
-
-                # Extract the coset representatives from the third column
-                elif i_col == 2:
-                    coset_representatives = column.text.strip().split('\n')
-
-                # Extract the URL for the wyckoff splitting information from the fourth column
-                elif i_col == 3:
-
-                    wyckoff_splitting_url = column.find_elements(By.TAG_NAME, "a")[0].get_attribute('href')
-
-                    # Retrieve the wyckoff splitting information using the provided function
-                    wyckoff_information = get_wyckoff_splitting_info(webpage=wyckoff_splitting_url,driver=driver)
-
-
-            # Create a dictionary to store the data for the current row
-            row_dict = {
-                "Supergroup number": supergroup_number,
-                "Transformation matrix": transformation_matrix,
-                "Initial vector": initial_vector,
-                "Coset representatives": coset_representatives,
-                "Wyckoff splitting info": wyckoff_information
-            }
 
             # Append the dictionary to the results list
             results.append(row_dict)
 
     return results
+
+def get_nested_table(driver, verbose=VERBOSE):
+    """
+    Retrieves the nested table from the current page.
+
+    Args:
+        driver: The webdriver object to use for scraping.
+
+    Returns:
+        WebElement: The nested table element.
+    """
+    return driver.find_element(By.CSS_SELECTOR, 'table[border=""]').find_element(By.XPATH, "tbody")
+
+def process_supergroup_row(row, driver, verbose=False):
+    """
+    Process a row of data from a table and extract relevant information.
+
+    Args:
+        row (WebElement): The row element containing the data.
+        driver (WebDriver): The WebDriver instance used for web scraping.
+        verbose (bool, optional): Whether to print verbose output. Defaults to False.
+
+    Returns:
+        dict: A dictionary containing the extracted data for the row.
+
+    """
+    # Initialize variables to store the data for each row
+    supergroup_number = None
+    transformation_matrix = np.zeros(shape=(3,3))
+    initial_vector = np.zeros(shape=(3))
+    coset_representatives = None
+    wyckoff_splitting_url = None
+    wyckoff_information = None
+
+    # Iterate through each column in the row
+    for i_col, column in enumerate(row.find_elements(By.XPATH, "td")):
+        if verbose:
+            print("Processing column", i_col)
+        
+        # Extract the supergroup number from the first column
+        if i_col == 0:
+            supergroup_number = column.text.strip()
+
+        # Extract the transformation matrix and initial vector from the second column
+        elif i_col == 1:
+            raw_transformation_matrix_rows = column.text.strip().split("\n")
+            for i_transform_row, transformation_row in enumerate(raw_transformation_matrix_rows):
+                raw_numbers = transformation_row.replace("[","").replace("]","").split()
+                tmp_list = []
+                for raw_number in raw_numbers:
+                    # handles cases where the string is a fraction
+                    if 't' in raw_number:
+                        raw_number = raw_number.split('t')[-1]
+                        if raw_number == '':
+                            raw_number = "0"
+                    if "/" in raw_number:
+                        
+                        numerator, denominator = map(int, raw_number.split('/'))
+                        result_number = numerator / denominator
+                    else:
+                        result_number=raw_number
+                    tmp_list.append(float(result_number))
+
+                raw_numbers = tmp_list
+                transformation_matrix[i_transform_row,:] = raw_numbers[:3]
+                initial_vector[i_transform_row] = raw_numbers[3]
+
+        # Extract the coset representatives from the third column
+        elif i_col == 2:
+            coset_representatives = column.text.strip().split('\n')
+
+        # Extract the URL for the wyckoff splitting information from the fourth column
+        elif i_col == 3:
+
+            wyckoff_splitting_url = column.find_elements(By.TAG_NAME, "a")[0].get_attribute('href')
+
+            # Retrieve the wyckoff splitting information using the provided function
+            wyckoff_information = get_wyckoff_splitting_info(webpage=wyckoff_splitting_url,driver=driver)
+
+
+    # Create a dictionary to store the data for the current row
+    row_dict = {
+        "Supergroup number": supergroup_number,
+        "Transformation matrix": transformation_matrix,
+        "Initial vector": initial_vector,
+        "Coset representatives": coset_representatives,
+        "Wyckoff splitting info": wyckoff_information
+    }
+    return row_dict
+
 
 #################################################################################################################################
 
@@ -365,13 +412,20 @@ def main():
     Returns:
     None
     """
-    # Fill in the text inputs
-    spg_1 = 213
-    z_1 = 2
-    spg_2 = 214
-    z_2 = 2
-    k_index = 2
+    # # Fill in the text inputs
+    # spg_1 = 213
+    # z_1 = 2
+    # spg_2 = 214
+    # z_2 = 2
+    # k_index = 2
     start_time = time.time()
+
+
+    spg_1 = 144
+    z_1 = 1
+    spg_2 = 145
+    z_2 = 1
+    k_index = 3
 
     common_supergroups_info = get_common_supergroups_of_two_spacegroups(spg_1, z_1, spg_2, z_2, k_index, verbose=VERBOSE)
 
